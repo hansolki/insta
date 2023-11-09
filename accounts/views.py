@@ -7,7 +7,7 @@ from .models import User
 # Create your views here.
 def signup(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request, request.POST, request.FILES)
+        form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             return redirect('posts:index')
@@ -42,9 +42,8 @@ def logout(request):
     return redirect('accounts:login')
 
 def profile(request, username):
-    user_info = User.object.get(username=username)
+    user_info = User.objects.get(username=username)
     context = {
         'user_info': user_info,
     }
     return render(request, 'profile.html', context)
-    
