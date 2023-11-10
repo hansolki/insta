@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
-from .models import Post
-from .forms import PostForm 
+from .models import Post, Comment
+from .forms import PostForm, CommentForm
 from django.contrib.auth.decorators import login_required
 # Create your views here.
 def index(request):
@@ -10,6 +10,17 @@ def index(request):
         'posts': posts,
     }
     return render(request, 'index.html', context)
+
+def detail(request, id):
+    post = Post.objects.get(id=id)
+    form = CommentForm
+
+    context = {
+        'post': post,
+        'form': form,
+    }
+    return render(request, 'detail.html', context)
+
 
 def create(request):
     if request.method == 'POST':
@@ -43,7 +54,16 @@ def likes(request, id):
         post.like_users.add(user)
         # user.like_posts.add(post)
 
-
-
-
     return redirect('posts:index')
+
+@login_required
+def comment_create(request, post_id):
+    form = CommentForm(request.POST)
+
+    if form.is_valid():
+        comment = form.save(commit=False)
+
+        comment.post_id = post_id
+        comment.save()
+
+        return redirect('posts:detail', id=post_id)
